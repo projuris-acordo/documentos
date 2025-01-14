@@ -22,6 +22,8 @@ solução possui escalonamento horizontal para garantir a maior disponibilidade 
 9. Gerenciamento de Logs
 10. Infraestrutura como Código
 11. Informações Adicionais
+12. Arquitetura Frontend (Microfrontend)
+13. Requisitos de Firewall
 
 ## 1. Segurança
 
@@ -163,3 +165,73 @@ que nos permite um controle mais detalhado de todos os elementos existentes.
 Este artigo descreve os detalhes de uso comum da solução. É importante salientar que projetos que possuírem necessidades
 específicas poderão demandar alteração de requisitos ou itens adicionais. Para mais informações, entre em contato com o
 suporte através do nosso [portal do cliente](https://www.projuris.com.br).
+
+## 12. Arquitetura Frontend (Microfrontend)
+
+O Projuris Acordos utiliza uma arquitetura de microfrontend baseada no framework Single-SPA, que permite a composição de múltiplas aplicações frontend independentes em um único portal coeso. Esta abordagem oferece diversos benefícios:
+
+- **Desenvolvimento independente**: Cada equipe pode desenvolver, testar e implantar seu módulo separadamente
+- **Escalabilidade**: Facilita a manutenção e evolução de partes específicas do sistema
+- **Tecnologia flexível**: Permite que diferentes módulos utilizem diferentes frameworks/versões
+- **Melhor organização**: Separação clara de responsabilidades entre os módulos
+
+#### Componentes do Frontend
+
+1. **Portal Shell** (`@projuris/root-config`)
+   - URL: https://acordos.projuris.com.br
+   - Responsável por orquestrar e carregar todos os outros módulos
+   - Gerencia o roteamento principal e a composição da interface
+
+2. **Módulos Principais**:
+   - **Portal Legacy** (`portal-legacy`)
+     - URL: https://legacy.projuris.acordo.app
+     - Contém funcionalidades básicas do sistema de negociações
+
+   - **Configurações** (`portal-configurations`)
+     - URL: https://configurations.projuris.acordo.app
+     - Gerenciamento de configurações do sistema
+
+   - **Lista de Tarefas** (`portal-todo-list`)
+     - URL: https://todo-list.projuris.acordo.app
+     - Gestão de tarefas e atividades do negociador
+
+   - **Majorações** (`portal-majoracoes`)
+     - URL: https://majoracoes.projuris.acordo.app
+     - Controle e cálculo de majorações solicitadas mediante contrapropostas
+
+## 13. Requisitos de Firewall
+
+Para o correto funcionamento do Projuris Acordos, é necessário liberar o acesso aos seguintes endereços:
+
+#### 1. Aplicação Principal e Módulos
+- `https://acordos.projuris.com.br` - Portal principal (Shell)
+- `https://legacy.projuris.acordo.app` - Módulo legado
+- `https://configurations.projuris.acordo.app` - Módulo de configurações
+- `https://todo-list.projuris.acordo.app` - Módulo de tarefas
+- `https://majoracoes.projuris.acordo.app` - Módulo de majorações
+
+**Justificativa**: Estes endereços são essenciais para o carregamento dos diferentes módulos que compõem a aplicação. Sem acesso a qualquer um deles, partes do sistema podem ficar indisponíveis.
+
+#### 2. APIs e Serviços de Backend
+- `https://backend.justto.app/api` - APIs principais do sistema
+- `https://api-webphone.mozaik.cloud/v1` - Serviço de discador
+- `https://user.userguiding.com` - Guia do usuário e tutoriais
+
+**Justificativa**: Essenciais para o funcionamento das operações do sistema, comunicação com o backend e recursos de auxílio ao usuário.
+
+#### 3. Recursos Estáticos e Analytics
+- `https://s3.sa-east-1.amazonaws.com/assets.acordo.app` - Armazenamento de assets
+- `https://api.segment.io` e `https://cdn.segment.com` - Análise de uso e comportamento
+- `https://www.google-analytics.com` - Métricas de uso e performance
+
+**Justificativa**: Necessários para carregar recursos visuais (imagens, ícones) e coletar métricas importantes para melhorias contínuas do sistema.
+
+#### Content Security Policy (CSP)
+
+Nossa política de segurança de conteúdo atual define as seguintes permissões:
+
+```html
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: localhost:* https://legacy.projuris.acordo.app https://legacy.projuris.acordo.app/* https://projuris.acordo.app https://acordos.projuris.com.br https://cdn.tracksale.co https://static.userguiding.com https://cdn.amplitude.com https://cdn.segment.com; script-src http://www.google-analytics.com https://cdn.amplitude.com https://cdn.segment.com 'unsafe-inline' 'unsafe-eval' https: localhost:*; connect-src ws: localhost:* wss: backend.justto.app https: backend.justto.app cdn.segment.com https://analytics.google.com; style-src 'unsafe-inline' https:; object-src 'none'; img-src 'self' https: data:;">
+```
+
+**Observação**: Ao solicitar as liberações no firewall, é importante mencionar que todas estas URLs são essenciais para o funcionamento completo do sistema. A falta de acesso a qualquer um destes endereços pode resultar em degradação da experiência do usuário ou indisponibilidade de funcionalidades específicas.
