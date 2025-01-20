@@ -1,7 +1,7 @@
 # Detalhamento Projuris Acordos
 
-*Criado por Deivid barbosa
-*Atualizado em 24/05/2024
+* Criado por Deivid barbosa
+* Atualizado em 24/05/2024
 
 ## Objetivo
 
